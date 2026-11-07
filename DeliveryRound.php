@@ -18,7 +18,9 @@ use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Thelia\Core\Install\Database;
 use Thelia\Core\Translation\Translator;
+use Thelia\Model\Address;
 use Thelia\Model\AddressQuery;
+use Thelia\Model\Cart;
 use Thelia\Model\Country;
 use Thelia\Model\OrderPostage;
 use Thelia\Module\AbstractDeliveryModule;
@@ -96,6 +98,18 @@ class DeliveryRound extends AbstractDeliveryModule
         $zipCode = trim($zipCode);
 
         return '' !== $zipCode && DeliveryRoundQuery::create()->filterByZipCode($zipCode)->exists();
+    }
+
+    /**
+     * The postal code the carrier is asked about: the address handed by the core, or the
+     * cart's own copy of the delivery address when there is none (a guest has no customer
+     * address behind the copy).
+     */
+    public static function zipCodeFor(?Address $address, ?Cart $cart): string
+    {
+        $zipCode = $address?->getZipcode() ?? $cart?->getCartAddressRelatedByAddressDeliveryId()?->getZipcode();
+
+        return trim((string) $zipCode);
     }
 
     public static function configureServices(ServicesConfigurator $servicesConfigurator): void

@@ -1,0 +1,21 @@
+{# Default body of the order_confirmation_deliveryround message, used when the active mail theme has no
+   file of the same name: a theme overrides it by shipping its own copy. #}
+{% extends "email-layout.html.twig" %}
+
+{% block browser %}{% endblock %}
+{% block pre_header %}{% endblock %}
+{% block email_subject %}Votre commande n° {{ order_ref|default('') }} est en route{% endblock %}
+{% block email_title %}<b>Votre commande est en route</b>{% endblock %}
+
+{% block email_content %}
+<p>Bonjour,</p>
+<p>
+    Nous vous informons que votre commande n°{{ order_ref|default('') }} vous sera livré lors de notre livraison sur votre secteur.<br/>
+    <br/>
+    <br/>
+</p>
+
+<p>Nous restons à votre disposition au besoin.</p>
+
+<p>Cordialement,</p>
+{% endblock %}

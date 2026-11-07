@@ -16,14 +16,14 @@ class DeliveryPostageListener implements EventSubscriberInterface
 {
     public function onGetPostage(DeliveryPostageEvent $event): void
     {
-        $address = $event->getAddress();
+        $zipCode = DeliveryRound::zipCodeFor($event->getAddress(), $event->getCart());
 
         // No address known: let the core fall back to DeliveryRound::isValidDelivery().
-        if (null === $address) {
+        if ('' === $zipCode) {
             return;
         }
 
-        $isValid = DeliveryRound::isZipCodeDelivered((string) $address->getZipcode());
+        $isValid = DeliveryRound::isZipCodeDelivered($zipCode);
 
         $event->setValidModule($isValid);
 

@@ -1,0 +1,18 @@
+{# Default text body of the order_confirmation_deliveryround message: a mail theme overrides it with a file of the same name. #}
+{# Twig conversion of the text body of the DeliveryRound e-mail, stored in Smarty in the database since v2
+   (message_i18n.text_message). DeliveryRound does not pass customer_id: the customer is reached through the
+   order, and only with an order id, or the loops would run unfiltered. #}
+{% if order_id is defined and order_id is not empty %}
+{% for order in loop('order.deliveryround', 'order', {id: order_id, customer: '*'}) %}
+{% for customer in loop('customer.order', 'customer', {current: false, id: order.CUSTOMER, backend_context: 1}) %}
+{{ customer.LASTNAME }} {{ customer.FIRSTNAME }},
+{% endfor %}
+{% endfor %}
+{% endif %}
+Votre commande N° {{ order_ref|default('') }} est en route.
+
+Elle vous sera livrée lors de notre tournée sur votre secteur.
+
+Nous restons à votre disposition au besoin.
+
+Cordialement,

@@ -32,6 +32,7 @@ use Thelia\Core\Event\TheliaEvents;
 use Thelia\Log\Tlog;
 use Thelia\Mailer\MailerFactory;
 use Thelia\Model\ConfigQuery;
+use Thelia\Model\OrderStatusQuery;
 
 /**
  * Class SendEMail
@@ -55,6 +56,12 @@ class SendEMail extends BaseAction implements EventSubscriberInterface
         $order = $event->getOrder();
 
         if ($order->getDeliveryModuleId() !== DeliveryRound::getModuleId() || !$order->isSent()) {
+            return;
+        }
+
+        // Only on the switch to "sent": an order already sent does not get the message twice.
+        $previousStatusId = $event->getPreviousStatusId();
+        if (null !== $previousStatusId && \in_array($previousStatusId, OrderStatusQuery::getSentStatusIdList(), false)) {
             return;
         }
 
@@ -109,7 +116,8 @@ class SendEMail extends BaseAction implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return array(
-            TheliaEvents::ORDER_UPDATE_STATUS => array("update_status", 128)
+            // Below the core (128), which writes the new status: the order is read once it is saved.
+            TheliaEvents::ORDER_UPDATE_STATUS => array("update_status", 100)
         );
     }
 }
